@@ -55,7 +55,8 @@ def download_adjusted_close(tickers, start_date, end_date):
         tickers=tickers,
         start=start_date,
         end=end_date if end_date else None,
-        progress=False
+        progress=False,
+        auto-adjust=False
     )
 
     if data.empty:
