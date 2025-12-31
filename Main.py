@@ -27,9 +27,8 @@ import yfinance as yf
 import matplotlib.pyplot as plt
 
 
-# -----------------------
-# SETTINGS (edit if needed)
-# -----------------------
+# SETTINGS 
+
 ASSET_TICKER = "NVDA"
 BENCHMARK_TICKER = "SPY"
 START_DATE = "2018-01-01"
@@ -38,9 +37,9 @@ OUTPUT_DIR = "outputs"
 TRADING_DAYS_PER_YEAR = 252
 
 
-# -----------------------
+
 # Helper functions
-# -----------------------
+
 def ensure_output_dir(folder_name: str) -> None:
     """Create output folder if it doesn't exist."""
     os.makedirs(folder_name, exist_ok=True)
@@ -73,41 +72,35 @@ def download_adjusted_close(tickers, start_date, end_date):
 
     return adj_close
 
-
+# Compute daily simple returns from price levels
 def compute_daily_returns(prices_df):
-    """Compute daily simple returns from price levels."""
     returns = prices_df.pct_change().dropna()
     if returns.empty:
         raise ValueError("Returns are empty after pct_change().")
     return returns
 
-
+# Convert daily returns into a growth-of-1 series
 def cumulative_growth(returns_series):
-    """Convert daily returns into a growth-of-1 series."""
     return (1 + returns_series).cumprod()
 
-
+# Compute CAGR (annualized geometric return)
 def cagr(daily_returns):
-    """Compute CAGR (annualized geometric return)."""
     total_growth = (1 + daily_returns).prod()
     years = len(daily_returns) / TRADING_DAYS_PER_YEAR
     return float(total_growth ** (1 / years) - 1)
 
-
+# Annualized volatility from daily returns
 def annual_volatility(daily_returns):
-    """Annualized volatility from daily returns."""
     return float(daily_returns.std(ddof=1) * np.sqrt(TRADING_DAYS_PER_YEAR))
 
-
+# Maximum drawdown (negative number).
 def max_drawdown(growth_series):
-    """Maximum drawdown (negative number)."""
     peak = growth_series.cummax()
     drawdown = (growth_series / peak) - 1.0
     return float(drawdown.min())
 
-
-def beta(asset_returns, benchmark_returns):
-    """Beta of asset vs benchmark."""
+# Beta of asset vs benchmark.
+def beta(asset_returns, benchmark_returns)
     aligned = pd.concat([asset_returns, benchmark_returns], axis=1).dropna()
     if len(aligned) < 2:
         return float("nan")
@@ -120,9 +113,8 @@ def beta(asset_returns, benchmark_returns):
 
     return float(cov / var)
 
-
+# Save a simple line plot for each column of df
 def save_line_plot(df, title, y_label, filepath):
-    """Save a simple line plot for each column of df."""
     fig = plt.figure()
     for col in df.columns:
         plt.plot(df.index, df[col], label=col)
@@ -137,9 +129,8 @@ def save_line_plot(df, title, y_label, filepath):
     plt.close(fig)
 
 
-# -----------------------
+
 # Main program
-# -----------------------
 def main():
     ensure_output_dir(OUTPUT_DIR)
 
